@@ -1,0 +1,52 @@
+%{ 
+#include"y.tab.h" 
+extern int yylval; 
+%} 
+%% 
+[0-9]+ {yylval=atoi(yytext);return num;} 
+[\t]; 
+. {return yytext[0];} 
+\n {return 0;} 
+%% 
+int yywrap( ) 
+{ 
+return 1; 
+} 
+
+%{ 
+#include<stdio.h> 
+%} 
+%token num 
+%left '+' '-' 
+%left '*' '/' 
+%% 
+stmt:expr{printf("Result of valid expression 
+is:%d\n",$$);return 0;} 
+ ; 
+expr:expr'+'expr {$$=$1+$3;} 
+|expr'-'expr {$$=$1-$3;} 
+|expr'*'expr {$$=$1*$3;} 
+
+|expr'/'expr { 
+if($3==0) 
+{
+ yyerror("divide by zero error"); 
+} 
+else 
+{ 
+$$=$1/$3; 
+} 
+} 
+|'('expr')' {$$=$2;} 
+|num {$$=$1;}; 
+%% 
+int main( ) 
+{ 
+printf("Enter the expression\n"); 
+yyparse( ); 
+} 
+int yyerror( ) 
+{ 
+printf("Invalid expression\n"); 
+exit(0); 
+} 
