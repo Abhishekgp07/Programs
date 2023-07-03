@@ -1,0 +1,79 @@
+%{ 
+#include<stdio.h> 
+#include<string.h> 
+int id=0,opc=0,ob=0,cb=0,i; 
+%}
+id[a-zA-Z0-9][a-zA-Z0-9]* 
+op[+]|[-]|[*]|[/]|[%] 
+%% 
+{id} {id++; ECHO; printf(":is an Identifier\n");} 
+{op} {opc++; ECHO; printf(":is an Operator\n");} 
+["("] {ob++;} 
+[")"] {if(ob>cb)
+ {
+cb++;
+}
+ else 
+{
+cb++; 
+}
+}
+["("][")"] {ob++;cb++;} 
+["("][op] {printf("%c is an operator\n",yytext[1]);ob++;} 
+[op][")"] {printf("%c is an operator\n",yytext[0]);cb++;} 
+{id}["("] { for(i=0;i<yyleng;i++)
+{ 
+if(yytext[i]=="(") 
+{ 
+ob++;continue; 
+}
+else 
+{ 
+printf("%c",yytext[i]); 
+id++; 
+}
+
+if(i==strlen(yytext)-2) 
+{ 
+printf(": is an Identifier\n"); 
+} 
+} 
+} 
+[")"]{id} { for(i=0;i<yyleng;i++) 
+{ 
+if(yytext[i]==')') 
+{ 
+cb++;continue; 
+}
+else 
+{ 
+printf("%c",yytext[i]);
+id++; 
+} 
+if(i==strlen(yytext)-1) 
+{ 
+printf(": is an Identifier\n"); 
+} 
+} 
+} 
+%% 
+main( ) 
+{ 
+printf("Enter the expression\n"); 
+yylex( ); 
+printf("Identifier= %d\n Operators =%d\n Open brackets= %d\n Close 
+brackets= %d\n”, id, opc, ob, cb);
+if(opc+1==id && ob==cb) 
+{ 
+printf("Valid expression\n"); 
+}
+else 
+{ 
+printf("Invalid expression\n"); 
+} 
+return 0; 
+} 
+int yywrap( ) 
+{ 
+return 1; 
+}
